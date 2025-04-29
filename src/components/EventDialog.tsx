@@ -7,21 +7,30 @@ import {
   TextField,
   Stack,
 } from '@mui/material';
-import { FC, useState, useEffect } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
-interface AddEventDialogProps {
+interface EventDialogProps {
   open: boolean;
+  mode: 'add' | 'edit';
   onClose: () => void;
-  onAdd: (eventData: { title: string; notes: string; start: Date; end: Date }) => void;
-  slotInfo: { start: Date; end: Date } | null;
+  onSubmit: (eventData: { title: string; notes: string; start: Date; end: Date; color?: string }) => void;
+  onDelete?: () => void;
+  initialData?: {
+    title: string;
+    notes: string;
+    start: Date;
+    end: Date;
+    color?: string;
+  };
 }
 
-export const AddEventDialog: FC<AddEventDialogProps> = ({
+export const EventDialog: FC<EventDialogProps> = ({
   open,
+  mode,
   onClose,
-  onAdd,
-  slotInfo,
+  onSubmit,
+  initialData,
 }) => {
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
@@ -29,22 +38,24 @@ export const AddEventDialog: FC<AddEventDialogProps> = ({
   const [end, setEnd] = useState<Date>(new Date());
 
   useEffect(() => {
-    if (slotInfo) {
-      setStart(slotInfo.start);
-      setEnd(slotInfo.end);
+    if (initialData) {
+      setTitle(initialData.title || '');
+      setNotes(initialData.notes || '');
+      setStart(initialData.start || new Date());
+      setEnd(initialData.end || new Date());
     }
-  }, [slotInfo]);
+  }, [initialData]);
 
-  const handleAdd = () => {
+  const handleSubmit = () => {
     if (title.trim()) {
-      onAdd({
+      onSubmit({
         title: title.trim(),
         notes,
         start,
         end,
+        color: initialData?.color || '#2196f3', // default color if not present
       });
-      setTitle('');
-      setNotes('');
+      handleClose();
     }
   };
 
@@ -56,7 +67,7 @@ export const AddEventDialog: FC<AddEventDialogProps> = ({
 
   return (
     <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Add Event</DialogTitle>
+      <DialogTitle>{mode === 'edit' ? 'Edit Event' : 'Add Event'}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} mt={1}>
           <TextField
@@ -94,11 +105,11 @@ export const AddEventDialog: FC<AddEventDialogProps> = ({
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
         <Button
-          onClick={handleAdd}
+          onClick={handleSubmit}
           variant="contained"
           disabled={!title.trim()}
         >
-          Add
+          {mode === 'edit' ? 'Update' : 'Add'}
         </Button>
       </DialogActions>
     </Dialog>
