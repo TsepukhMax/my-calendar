@@ -74,13 +74,12 @@ export const MyCalendar = () => {
     handleCloseDialog();
   };
 
-  // const handleDeleteEvent = () => {
-  //   if (selectedEvent) {
-  //     setEvents(events.filter(ev => ev.id !== selectedEvent.id)); // Фільтруємо подію за id
-  //     handleCloseDialog(); // Закриваємо діалогове вікно
-  //   }
-  // };
-
+  const handleDeleteEvent = () => {
+    if (selectedEvent) {
+      setEvents(events.filter(ev => ev.id !== selectedEvent.id));
+      handleCloseDialog();
+    }
+  };
   return (
     <div style={{ height: 500 }}>
       <BigCalendar
@@ -109,6 +108,7 @@ export const MyCalendar = () => {
         mode={dialogMode}
         onClose={handleCloseDialog}
         onSubmit={handleSubmit}
+        onDelete={dialogMode === 'edit' ? handleDeleteEvent : undefined}
         initialData={
           dialogMode === 'add'
             ? selectedSlot

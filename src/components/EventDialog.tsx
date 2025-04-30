@@ -30,6 +30,7 @@ export const EventDialog: FC<EventDialogProps> = ({
   mode,
   onClose,
   onSubmit,
+  onDelete,
   initialData,
 }) => {
   const [title, setTitle] = useState('');
@@ -103,6 +104,11 @@ export const EventDialog: FC<EventDialogProps> = ({
         </Stack>
       </DialogContent>
       <DialogActions>
+        {mode === 'edit' && onDelete && (
+          <Button onClick={() => { onDelete(); handleClose(); }} color="error">
+            Delete
+          </Button>
+        )}
         <Button onClick={handleClose}>Cancel</Button>
         <Button
           onClick={handleSubmit}
