@@ -1,14 +1,21 @@
 import {
   Calendar as BigCalendar,
-  SlotInfo,
-  View,
   dateFnsLocalizer,
+  SlotInfo,
+  View
 } from 'react-big-calendar';
+
+import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
+
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
 import { useState } from 'react';
 import { EventDialog } from '../EventDialog';
+
+// ✅ Обгортаємо BigCalendar для drag & drop
+const DnDCalendar = withDragAndDrop(BigCalendar);
 
 const locales = {
   'en-US': enUS,
@@ -60,7 +67,13 @@ export const MyCalendar = () => {
     setSelectedEvent(null);
   };
 
-  const handleSubmit = (eventData: { title: string; notes: string; start: Date; end: Date; color?: string }) => {
+  const handleSubmit = (eventData: {
+    title: string;
+    notes: string;
+    start: Date;
+    end: Date;
+    color?: string;
+  }) => {
     if (dialogMode === 'add') {
       const newEvent: MyEvent = {
         ...eventData,
@@ -69,20 +82,44 @@ export const MyCalendar = () => {
       };
       setEvents([...events, newEvent]);
     } else if (dialogMode === 'edit' && selectedEvent) {
-      setEvents(events.map(ev => ev.id === selectedEvent.id ? { ...eventData, id: ev.id, color: ev.color } : ev));
+      setEvents(
+        events.map((ev) =>
+          ev.id === selectedEvent.id
+            ? { ...eventData, id: ev.id, color: ev.color }
+            : ev
+        )
+      );
     }
     handleCloseDialog();
   };
 
   const handleDeleteEvent = () => {
     if (selectedEvent) {
-      setEvents(events.filter(ev => ev.id !== selectedEvent.id));
+      setEvents(events.filter((ev) => ev.id !== selectedEvent.id));
       handleCloseDialog();
     }
   };
+
+  const handleEventDrop = ({
+    event,
+    start,
+    end,
+  }: {
+    event: MyEvent;
+    start: Date;
+    end: Date;
+  }) => {
+    setEvents(
+      events.map((ev) =>
+        ev.id === event.id ? { ...ev, start, end } : ev
+      )
+    );
+  };
+
   return (
     <div style={{ height: 500 }}>
-      <BigCalendar
+      {/* ✅ Заміна BigCalendar на DnDCalendar */}
+      <DnDCalendar
         localizer={localizer}
         events={events}
         startAccessor="start"
@@ -95,12 +132,13 @@ export const MyCalendar = () => {
         onNavigate={setCurrentDate}
         onSelectSlot={handleSlotSelect}
         selectable
+        onSelectEvent={handleEventSelect}
         eventPropGetter={(event) => ({
           style: {
             backgroundColor: event.color,
           },
         })}
-        onSelectEvent={handleEventSelect}
+        onEventDrop={handleEventDrop} // ✅ додаємо цю подію
       />
 
       <EventDialog
