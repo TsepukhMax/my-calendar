@@ -1,6 +1,6 @@
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { MyCalendar } from './components/calendar/Сalendar';
+import { MyCalendar } from './components/Сalendar';
 
 function App() {
   return (

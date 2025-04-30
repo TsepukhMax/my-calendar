@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { InputLabel } from '@mui/material';
 
 interface EventDialogProps {
   open: boolean;
@@ -21,7 +22,7 @@ interface EventDialogProps {
     notes: string;
     start: Date;
     end: Date;
-    color?: string;
+    color: string;
   };
 }
 
@@ -37,6 +38,7 @@ export const EventDialog: FC<EventDialogProps> = ({
   const [notes, setNotes] = useState('');
   const [start, setStart] = useState<Date>(new Date());
   const [end, setEnd] = useState<Date>(new Date());
+  const [color, setColor] = useState('#2196f3');
 
   useEffect(() => {
     if (initialData) {
@@ -44,6 +46,7 @@ export const EventDialog: FC<EventDialogProps> = ({
       setNotes(initialData.notes || '');
       setStart(initialData.start || new Date());
       setEnd(initialData.end || new Date());
+      setColor(initialData.color || '#2196f3');
     }
   }, [initialData]);
 
@@ -54,7 +57,7 @@ export const EventDialog: FC<EventDialogProps> = ({
         notes,
         start,
         end,
-        color: initialData?.color || '#2196f3', // default color if not present
+        color,
       });
       handleClose();
     }
@@ -101,6 +104,15 @@ export const EventDialog: FC<EventDialogProps> = ({
             }}
             fullWidth
           />
+          <div>
+            <InputLabel shrink>Color</InputLabel>
+            <input
+              type="color"
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+              style={{ width: '100%', height: 40, border: 'none', cursor: 'pointer' }}
+            />
+          </div>
         </Stack>
       </DialogContent>
       <DialogActions>

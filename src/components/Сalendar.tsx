@@ -4,7 +4,6 @@ import {
   SlotInfo,
   View
 } from 'react-big-calendar';
-
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
@@ -12,9 +11,8 @@ import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
 import { useState } from 'react';
-import { EventDialog } from '../EventDialog';
+import { EventDialog } from './EventDialog';
 
-// ✅ Обгортаємо BigCalendar для drag & drop
 const DnDCalendar = withDragAndDrop(BigCalendar);
 
 const locales = {
@@ -55,7 +53,7 @@ export const MyCalendar = () => {
     setDialogOpen(true);
   };
 
-  const handleEventSelect = (event: MyEvent) => {
+  const handleEventSelect = (event: any) => {
     setSelectedEvent(event);
     setDialogMode('edit');
     setDialogOpen(true);
@@ -85,7 +83,11 @@ export const MyCalendar = () => {
       setEvents(
         events.map((ev) =>
           ev.id === selectedEvent.id
-            ? { ...eventData, id: ev.id, color: ev.color }
+            ? {
+                ...eventData,
+                id: ev.id,
+                color: eventData.color || ev.color,
+              }
             : ev
         )
       );
@@ -100,15 +102,7 @@ export const MyCalendar = () => {
     }
   };
 
-  const handleEventDrop = ({
-    event,
-    start,
-    end,
-  }: {
-    event: MyEvent;
-    start: Date;
-    end: Date;
-  }) => {
+  const handleEventDrop = ({ event, start, end }: any) => {
     setEvents(
       events.map((ev) =>
         ev.id === event.id ? { ...ev, start, end } : ev
@@ -118,12 +112,11 @@ export const MyCalendar = () => {
 
   return (
     <div style={{ height: 500 }}>
-      {/* ✅ Заміна BigCalendar на DnDCalendar */}
       <DnDCalendar
         localizer={localizer}
         events={events}
-        startAccessor="start"
-        endAccessor="end"
+        startAccessor={(event: any) => new Date(event.start)}
+        endAccessor={(event: any) => new Date(event.end)}
         style={{ height: '100%' }}
         views={['month', 'week', 'day']}
         view={view}
@@ -133,12 +126,12 @@ export const MyCalendar = () => {
         onSelectSlot={handleSlotSelect}
         selectable
         onSelectEvent={handleEventSelect}
-        eventPropGetter={(event) => ({
+        onEventDrop={handleEventDrop}
+        eventPropGetter={(event: any) => ({
           style: {
             backgroundColor: event.color,
           },
         })}
-        onEventDrop={handleEventDrop} // ✅ додаємо цю подію
       />
 
       <EventDialog
@@ -150,9 +143,9 @@ export const MyCalendar = () => {
         initialData={
           dialogMode === 'add'
             ? selectedSlot
-              ? { title: '', notes: '', start: selectedSlot.start, end: selectedSlot.end }
-              : undefined
-            : selectedEvent || undefined
+              ? { title: '', notes: '', start: selectedSlot.start, end: selectedSlot.end, color: '' }
+              : { title: '', notes: '', start: new Date(), end: new Date(), color: '' }
+            : selectedEvent || { title: '', notes: '', start: new Date(), end: new Date(), color: '' }
         }
       />
     </div>
